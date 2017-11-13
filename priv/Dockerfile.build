@@ -1,19 +1,24 @@
-FROM bitwalker/alpine-erlang:19.3.4
+FROM bitwalker/alpine-erlang:20.1
 
-ENV HOME=/opt/app/ TERM=xterm
+ENV TERM=xterm \
+    REFRESHED_AT=2017-10-01 \
+    ELIXIR_VERSION=v1.5.2
 
 # Install Elixir and basic build dependencies
 RUN \
-    echo "@edge http://nl.alpinelinux.org/alpine/edge/community" >> /etc/apk/repositories && \
-    apk --update upgrade musl && \
-    apk --no-cache add \
-      git make g++ \
-      elixir@edge=1.4.4-r0 && \
-    rm -rf /var/cache/apk/*
-
-# Install Hex+Rebar
-RUN mix local.hex --force && \
-    mix local.rebar --force
+    apk --no-cache --update upgrade && \
+    apk add --no-cache --update --virtual .elixir-build \
+      make && \
+    apk add --no-cache --update \
+      git && \
+    git clone https://github.com/elixir-lang/elixir --depth 1 --branch $ELIXIR_VERSION && \
+    cd elixir && \
+    make && make install && \
+    mix local.hex --force && \
+    mix local.rebar --force && \
+    cd $HOME && \
+    rm -rf /tmp/elixir-build && \
+    apk del .elixir-build
 
 WORKDIR /opt/app
 
