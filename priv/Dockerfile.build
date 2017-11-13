@@ -1,24 +1,4 @@
-FROM bitwalker/alpine-erlang:20.1
-
-ENV TERM=xterm \
-    REFRESHED_AT=2017-10-01 \
-    ELIXIR_VERSION=v1.5.2
-
-# Install Elixir and basic build dependencies
-RUN \
-    apk --no-cache --update upgrade && \
-    apk add --no-cache --update --virtual .elixir-build \
-      make && \
-    apk add --no-cache --update \
-      git && \
-    git clone https://github.com/elixir-lang/elixir --depth 1 --branch $ELIXIR_VERSION && \
-    cd elixir && \
-    make && make install && \
-    mix local.hex --force && \
-    mix local.rebar --force && \
-    cd $HOME && \
-    rm -rf /tmp/elixir-build && \
-    apk del .elixir-build
+FROM bitwalker/alpine-elixir:1.5.2
 
 WORKDIR /opt/app
 
